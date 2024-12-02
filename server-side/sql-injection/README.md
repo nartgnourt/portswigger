@@ -28,7 +28,7 @@ Bởi vì `1=1` luôn đúng nên câu truy vấn sẽ trả về tất cả cá
 
 ![image](images/lab-1/lab-1-1.png)
 
-### Lab 2: [SQL injection vulnerability allowing login bypass](https://portswigger.net/web-security/sql-injection/lab-login-bypass)
+## Lab 2: [SQL injection vulnerability allowing login bypass](https://portswigger.net/web-security/sql-injection/lab-login-bypass)
 
 > This lab contains a SQL injection vulnerability in the login function.
 >
