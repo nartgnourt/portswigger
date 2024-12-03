@@ -55,3 +55,25 @@ SELECT * FROM users WHERE username = 'administrator'--' AND password = '<passwor
 Từ đó, chúng ta đăng nhập thành công:
 
 ![image](images/lab-2/lab-2-1.png)
+
+## Lab 3: [SQL injection UNION attack, determining the number of columns returned by the query](https://portswigger.net/web-security/sql-injection/union-attacks/lab-determine-number-of-columns)
+
+> This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response, so you can use a UNION attack to retrieve data from other tables. The first step of such an attack is to determine the number of columns that are being returned by the query. You will then use this technique in subsequent labs to construct the full attack.
+>
+> To solve the lab, determine the number of columns returned by the query by performing a SQL injection UNION attack that returns an additional row containing null values.
+
+Truy cập vào lab, chúng ta xem sản phẩm theo danh mục Pets:
+
+![image](images/lab-3/lab-3.png)
+
+Bài lab yêu cầu chúng ta khiến cho câu truy vấn trả về thêm 1 hàng chứa các giá trị null nên có thể thử với payload `' UNION SELECT NULL--` ở tham số `category`.
+
+Chúng ta nhận được lỗi:
+
+![image](images/lab-3/lab-3-1.png)
+
+Từ đó, chúng ta hiểu rằng câu truy vấn gốc lấy ra nhiều hơn 1 cột nên mới gây ra lỗi.
+
+Vậy chúng ta tiếp tục thêm lần lượt giá trị null vào payload để kiểm tra và tới payload `' UNION SELECT NULL, NULL, NULL--` sẽ thành công:
+
+![image](images/lab-3/lab-3-2.png)
