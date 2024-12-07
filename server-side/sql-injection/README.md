@@ -97,3 +97,37 @@ Thử thay `'hJ2Xhz'` vào `NULL` đầu tiên nhận được lỗi:
 Vậy là cột 1 không trùng khớp loại dữ liệu. Giờ chúng ta thay chuỗi `'hJ2Xhz'` vào `NULL` thứ hai sẽ thành công:
 
 ![image](images/lab-4/lab-4-2.png)
+
+## Lab 5: [SQL injection attack, querying the database type and version on Oracle](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-oracle)
+
+> This lab contains a SQL injection vulnerability in the product category filter. You can use a UNION attack to retrieve the results from an injected query.
+>
+> To solve the lab, display the database version string.
+>
+> **Hint**
+>
+> On Oracle databases, every `SELECT` statement must specify a table to select `FROM`. If your `UNION SELECT` attack does not query from a table, you will still need to include the `FROM` keyword followed by a valid table name.
+>
+> There is a built-in table on Oracle called `dual` which you can use for this purpose. For example: `UNION SELECT 'abc' FROM dual`
+
+Truy cập vào lab, chúng ta có thể đọc các thông tin theo danh mục, ví dụ như Pets:
+
+![image](images/lab-5/lab-5.png)
+
+Bài lab yêu cầu chúng ta phải khiến cho ứng dụng trả về phiên bản của database.
+
+Trước tiên, cần xem xét câu truy vấn ban đầu trả về bao nhiêu cột. Dựa vào hint, mỗi câu lệnh `SELECT` ở Oracle database phải chỉ định một bảng hợp lệ nên chúng ta sẽ tận dụng bảng `dual` và sử dụng payload `' UNION SELECT NULL FROM dual--` để kiểm tra.
+
+![image](images/lab-5/lab-5-1.png)
+
+Đã có lỗi xảy ra, như vậy là câu truy vấn gốc trả về nhiều hơn 1 cột. Chúng ta tiếp tục thêm giá trị null vào để kiểm tra và xác định được số cột là 2.
+
+![image](images/lab-5/lab-5-2.png)
+
+Tiếp theo, cần xem cột nào có thể chứa chuỗi, chúng ta dùng payload `' UNION SELECT 'hehe', NULL FROM dual--` thấy được cột 1 có thể nhận chuỗi.
+
+![image](images/lab-5/lab-5-3.png)
+
+Giờ có thể lấy database version bằng cách sử dụng payload `' UNION SELECT banner, NULL FROM v$version--`.
+
+![image](images/lab-5/lab-5-4.png)
