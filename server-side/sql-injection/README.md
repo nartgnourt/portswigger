@@ -131,3 +131,27 @@ Tiếp theo, cần xem cột nào có thể chứa chuỗi, chúng ta dùng payl
 Giờ có thể lấy database version bằng cách sử dụng payload `' UNION SELECT banner, NULL FROM v$version--`.
 
 ![image](images/lab-5/lab-5-4.png)
+
+## Lab 6: [SQL injection attack, querying the database type and version on MySQL and Microsoft](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-mysql-microsoft)
+
+> This lab contains a SQL injection vulnerability in the product category filter. You can use a UNION attack to retrieve the results from an injected query.
+>
+> To solve the lab, display the database version string.
+
+Bài lab này cũng yêu cầu chúng ta lấy được phiên bản của database.
+
+Truy cập lab, chúng ta vào xem theo danh mục Gifts:
+
+![lab-6](images/lab-6/lab-6.png)
+
+Trước tiên, chúng ta xác định được câu truy vấn gốc trả về 2 cột bằng cách sử dụng payload `' UNION SELECT NULL, NULL--+`:
+
+![lab-6-1](images/lab-6/lab-6-1.png)
+
+Tiếp theo, với payload `' UNION SELECT 'hehe', NULL--+` xác định được cột 1 có thể chứa chuỗi:
+
+![lab-6-2](images/lab-6/lab-6-2.png)
+
+Và cuối cùng, chúng ta sẽ sử dụng payload `' UNION SELECT @@version, NULL--+` để xem được phiên bản của database:
+
+![lab-6-3](images/lab-6/lab-6-3.png)
