@@ -155,3 +155,31 @@ Tiếp theo, với payload `' UNION SELECT 'hehe', NULL--+` xác định đượ
 Và cuối cùng, chúng ta sẽ sử dụng payload `' UNION SELECT @@version, NULL--+` để xem được phiên bản của database:
 
 ![lab-6-3](images/lab-6/lab-6-3.png)
+
+## Lab 7: [SQL injection attack, listing the database contents on non-Oracle databases](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-non-oracle)
+
+> This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response so you can use a UNION attack to retrieve data from other tables.
+>
+> The application has a login function, and the database contains a table that holds usernames and passwords. You need to determine the name of this table and the columns it contains, then retrieve the contents of the table to obtain the username and password of all users.
+>
+> To solve the lab, log in as the `administrator` user.
+
+Truy cập lab, chúng ta vào xem theo danh mục Pets:
+
+![lab-7](images/lab-7/lab-7.png)
+
+Tương tự như mấy lab trước, biết được câu truy vấn trả về 2 cột và cột 1 có thể chứa chuỗi nên chúng ta sử dụng payload `' UNION SELECT table_name, NULL FROM information_schema.tables--` để xem được danh sách các bảng của database:
+
+![lab-7-1](images/lab-7/lab-7-1.png)
+
+Thấy có bảng `users_jipqgs`, chúng ta liệt kê các cột của bảng này với payload `' UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name='users_jipqgs'--`.
+
+Chúng ta sẽ thấy 2 cột là `password_uaaenk` và `username_unitwp`:
+
+![lab-7-2](images/lab-7/lab-7-2.png)
+
+Tiếp đến, đọc nội dung của 2 cột đó với payload `' UNION SELECT password_uaaenk, username_unitwp FROM users_jipqgs--` để lấy được thông tin của `administrator`:
+
+![lab-7-3](images/lab-7/lab-7-3.png)
+
+Và cuối cùng đăng nhập thành công với `administrator:fvsh52kiu4l0i059vzsp`.
