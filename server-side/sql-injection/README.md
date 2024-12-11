@@ -183,3 +183,35 @@ Tiếp đến, đọc nội dung của 2 cột đó với payload `' UNION SELEC
 ![lab-7-3](images/lab-7/lab-7-3.png)
 
 Và cuối cùng đăng nhập thành công với `administrator:fvsh52kiu4l0i059vzsp`.
+
+## Lab 8: [Lab: SQL injection attack, listing the database contents on Oracle](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-oracle)
+
+> This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response so you can use a UNION attack to retrieve data from other tables.
+>
+> The application has a login function, and the database contains a table that holds usernames and passwords. You need to determine the name of this table and the columns it contains, then retrieve the contents of the table to obtain the username and password of all users.
+>
+> To solve the lab, log in as the `administrator` user.
+>
+> **Hint**
+>
+> On Oracle databases, every `SELECT` statement must specify a table to select `FROM`. If your `UNION SELECT` attack does not query from a table, you will still need to include the `FROM` keyword followed by a valid table name.
+>
+> There is a built-in table on Oracle called `dual` which you can use for this purpose. For example: `UNION SELECT 'abc' FROM dual`
+
+Tương tự như lab trước nhưng do ứng dụng sử dụng Oracle database nên payload có chút khác biệt.
+
+Chúng ta biết được số cột mà câu truy vấn trả về là 2 nên sử dụng payload `' UNION SELECT table_name, NULL FROM all_tables--` để liệt kê các bảng của database:
+
+![image](images/lab-8/lab-8.png)
+
+Tiếp theo, để liệt kê các cột của bảng `USERS_XAFIWJ`, chúng ta dùng payload `' UNION SELECT column_name, NULL FROM all_tab_columns WHERE table_name='USERS_XAFIWJ'--`.
+
+Có 2 cột là `PASSWORD_OSXRXI` và `USERNAME_ORDSTE`:
+
+![image](images/lab-8/lab-8-1.png)
+
+Chúng ta đọc nội dung của 2 cột đó với payload `' UNION SELECT PASSWORD_OSXRXI, USERNAME_ORDSTE FROM USERS_XAFIWJ--` thấy được thông tin của `administrator`:
+
+![image](images/lab-8/lab-8-2.png)
+
+Vậy chúng ta đăng nhập thành công với `administrator:cf56hm9edw7pjhds65t3`.
