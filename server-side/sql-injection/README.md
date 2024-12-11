@@ -184,7 +184,7 @@ Tiếp đến, đọc nội dung của 2 cột đó với payload `' UNION SELEC
 
 Và cuối cùng đăng nhập thành công với `administrator:fvsh52kiu4l0i059vzsp`.
 
-## Lab 8: [Lab: SQL injection attack, listing the database contents on Oracle](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-oracle)
+## Lab 8: [SQL injection attack, listing the database contents on Oracle](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-oracle)
 
 > This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response so you can use a UNION attack to retrieve data from other tables.
 >
@@ -215,3 +215,29 @@ Chúng ta đọc nội dung của 2 cột đó với payload `' UNION SELECT PAS
 ![image](images/lab-8/lab-8-2.png)
 
 Vậy chúng ta đăng nhập thành công với `administrator:cf56hm9edw7pjhds65t3`.
+
+## Lab 9: [SQL injection UNION attack, retrieving data from other tables](https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-data-from-other-tables)
+
+> This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response, so you can use a UNION attack to retrieve data from other tables. To construct such an attack, you need to combine some of the techniques you learned in previous labs.
+>
+> The database contains a different table called users, with columns called username and password.
+>
+> To solve the lab, perform a SQL injection UNION attack that retrieves all usernames and passwords, and use the information to log in as the administrator user.
+
+Chúng ta sử dụng payload `' UNION SELECT table_name, NULL FROM information_schema.tables--` để liệt kê các bảng của database.
+
+Chúng ta sẽ thấy có bảng `users`:
+
+![image](images/lab-9/lab-9.png)
+
+Tiếp theo, để liệt kê các cột của bảng `users`, chúng ta dùng payload `' UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name='users'--`.
+
+Thấy được cột `password` và cột `username` trong bảng này:
+
+![image](images/lab-9/lab-9-1.png)
+
+Chúng ta sẽ đọc 2 cột đó với payload `' UNION SELECT password, username FROM users--` để thấy được thông tin của `administrator`:
+
+![image](images/lab-9/lab-9-2.png)
+
+Và cuối cùng đăng nhập thành công với `administrator:xv5cokudyrgg1jr7jvgk`.
