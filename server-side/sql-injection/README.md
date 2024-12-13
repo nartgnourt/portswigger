@@ -241,3 +241,29 @@ Chúng ta sẽ đọc 2 cột đó với payload `' UNION SELECT password, usern
 ![image](images/lab-9/lab-9-2.png)
 
 Và cuối cùng đăng nhập thành công với `administrator:xv5cokudyrgg1jr7jvgk`.
+
+## Lab 10: [SQL injection UNION attack, retrieving multiple values in a single column](https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-multiple-values-in-single-column)
+
+> This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response so you can use a UNION attack to retrieve data from other tables.
+>
+> The database contains a different table called `users`, with columns called `username` and `password`.
+>
+> To solve the lab, perform a SQL injection UNION attack that retrieves all usernames and passwords, and use the information to log in as the `administrator` user.
+
+Truy cập lab, chúng ta vào xem theo danh mục Pets.
+
+Sử dụng payload `' UNION SELECT NULL, NULL--` xác định được câu truy vấn trả về 2 cột:
+
+![image](images/lab-10/lab-10.png)
+
+Tiếp theo cần xác định cột nào có thể chứa chuỗi. Chúng ta thay lần lượt `'hehe'` vào từng `NULL` trong payload thì xác định được cột 2 có thể chứa chuỗi:
+
+![image](images/lab-10/lab-10-1.png)
+
+Giờ chúng ta sẽ đọc nội dung của cột `username` và `password` trong bảng `users`. Nhưng chỉ có một cột có thể chứa chuỗi nên chúng ta có thể dùng toán tử `||` để nối các giá trị lại với nhau.
+
+Vậy có payload `' UNION SELECT NULL, username || ':' || password FROM users--`:
+
+![image](images/lab-10/lab-10-2.png)
+
+Chúng ta sẽ đăng nhập thành công với `administrator:mq2r88abp2y5z7y6xty0`.
