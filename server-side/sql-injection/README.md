@@ -409,3 +409,27 @@ for i in range(1, 21):
 print(f"administrator:{password}") # administrator:anvjib2zbhzn8fb0sbnc
 
 ```
+
+## Lab 13: [Visible error-based SQL injection](https://portswigger.net/web-security/sql-injection/blind/lab-sql-injection-visible-error-based)
+
+> This lab contains a SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie. The results of the SQL query are not returned.
+>
+> The database contains a different table called users, with columns called username and password. To solve the lab, find a way to leak the password for the administrator user, then log in to their account.
+
+Chúng ta thử thêm dấu `'` vào giá trị của cookie `TrackingId` thì thấy lỗi xuất hiện:
+
+![image](images/lab-13/lab-13.png)
+
+Từ lỗi trên, chúng ta có thể thấy được toàn bộ câu truy vấn.
+
+Tiếp theo, chúng ta sẽ tận dụng hàm `CAST()` để tạo ra lỗi khi chuyển đổi loại dữ liệu từ `string` sang `int`. Chúng ta thay giá trị của cookie `TrackingId` thành payload `' AND CAST((SELECT username FROM users LIMIT 1) AS int)=1--`.
+
+Gửi request đi, chúng ta nhận thấy người dùng `administrator` nằm ở hàng đầu tiên trong bảng `users`:
+
+![image](images/lab-13/lab-13-1.png)
+
+Như vậy, chỉ cần đổi `username` thành `password` trong payload là chúng ta sẽ lấy được password:
+
+![image](images/lab-13/lab-13-2.png)
+
+Cuối cùng, đăng nhập với `administrator:2qrqz8cwynn52caocn38` để giải thành công bài lab.
