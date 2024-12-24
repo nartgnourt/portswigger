@@ -550,3 +550,31 @@ Trước tiên, để lấy được password, chúng ta có thể đổi giá t
 ![image](images/lab-17/lab-17-1.png)
 
 Vậy chúng ta giải thành công bài lab bằng cách đăng nhập với `administrator:ljnfmtsp9sb2gaugtwce`.
+
+## Lab 18: [SQL injection with filter bypass via XML encoding](https://portswigger.net/web-security/sql-injection/lab-sql-injection-with-filter-bypass-via-xml-encoding)
+
+> This lab contains a SQL injection vulnerability in its stock check feature. The results from the query are returned in the application's response, so you can use a UNION attack to retrieve data from other tables.
+>
+> The database contains a `users` table, which contains the usernames and passwords of registered users. To solve the lab, perform a SQL injection attack to retrieve the admin user's credentials, then log in to their account.
+>
+> **Hint**
+>
+> A web application firewall (WAF) will block requests that contain obvious signs of a SQL injection attack. You'll need to find a way to obfuscate your malicious query to bypass this filter. We recommend using the Hackvertor extension to do this.
+
+Trước tiên, chúng ta cần bắt request khi nhấn "Check stock":
+
+![image](images/lab-18/lab-18.png)
+
+Khi thử thêm payload `UNION SELECT NULL--` vào `productID` thì chúng ta thấy thông báo `"Attack detected"`:
+
+![image](images/lab-18/lab-18-1.png)
+
+Để bypass được WAF, chúng ta sẽ sử dụng extension Hackverter để encode hex_entities:
+
+![image](images/lab-18/lab-18-2.png)
+
+Có thể thấy là ứng dụng đã nhận payload. Tiếp theo, chúng ta sẽ sử dụng payload `UNION SELECT password FROM users WHERE username='administrator'--` để lấy được password của user `administrator`.
+
+![image](images/lab-18/lab-18-3.png)
+
+Và chúng ta có thể đăng nhập thành công với `administrator:wpsmri0ycdrn69mt8mj9`.
