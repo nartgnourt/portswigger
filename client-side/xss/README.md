@@ -43,3 +43,25 @@ Trước tiên, chúng ta vào một bài viết và nhập vào các trường 
 Nhấn "Post Comment", chúng ta sẽ giải được bài lab:
 
 ![image](images/lab-2/lab-2-2.png)
+
+## Lab 3: [DOM XSS in `document.write` sink using source `location.search`](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-document-write-sink)
+
+> This lab contains a DOM-based cross-site scripting vulnerability in the search query tracking functionality. It uses the JavaScript document.write function, which writes data out to the page. The document.write function is called with data from location.search, which you can control using the website URL.
+>
+> To solve this lab, perform a cross-site scripting attack that calls the alert function.
+
+Truy cập vào lab, chúng ta thấy một trang web như sau:
+
+![image](images/lab-3/lab-3.png)
+
+Nếu thử tìm kiếm `abc` rồi Inspect kiểm tra, chúng ta sẽ thấy giá trị mình nhập vào đang được truyền tới thuộc tính `src` của hình ảnh:
+
+![image](images/lab-3/lab-3-1.png)
+
+Dó đó, để khai thác XSS thành công, chúng ta cần phải thoát ra khỏi cặp dấu `"`. Chúng ta có thể sử dụng payload `"><svg onload=alert()>`:
+
+![image](images/lab-3/lab-3-2.png)
+
+Và giải thành công bài lab:
+
+![image](images/lab-3/lab-3-3.png)
