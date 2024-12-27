@@ -93,3 +93,31 @@ Chúng ta sẽ dùng payload `<img src=1 onerror=alert()>`:
 Thực hiện XSS thành công và chúng ta đã giải được bài lab:
 
 ![image](images/lab-4/lab-4-4.png)
+
+## Lab 5: [DOM XSS in jQuery anchor `href` attribute sink using `location.search` source](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-href-attribute-sink)
+
+> This lab contains a DOM-based cross-site scripting vulnerability in the submit feedback page. It uses the jQuery library's `$` selector function to find an anchor element, and changes its `href` attribute using data from `location.search`.
+>
+> To solve this lab, make the "back" link alert `document.cookie`.
+
+Bên dưới là giao diện của trang web.
+
+![image](images/lab-5/lab-5.png)
+
+Theo như mô tả, trang web dính lỗi XSS ở tính năng submit feedback và cần phải thực thi `alert(document.cookie)` để giải bài lab, nên chúng ta tới đó để khai thác.
+
+Xem source code, chúng ta sẽ thấy có một đoạn JavaScript sử dụng JQuery để lấy giá trị của tham số `returnPath` và đặt nó làm giá trị cho attribute `href` của phần tử với `id` là `backLink`:
+
+![image](images/lab-5/lab-5-1.png)
+
+![image](images/lab-5/lab-5-2.png)
+
+Do vậy, chúng ta sẽ thay đổi giá trị của tham số `returnPath` thành `javascript:alert(document.cookie)` để khiến sink `href` nhận payload này.
+
+Và chúng ta giải thành công bài lab:
+
+![image](images/lab-5/lab-5-3.png)
+
+Khi chúng ta nhấn "Back" sẽ trigger XSS:
+
+![image](images/lab-5/lab-5-4.png)
