@@ -65,3 +65,31 @@ Dó đó, để khai thác XSS thành công, chúng ta cần phải thoát ra kh
 Và giải thành công bài lab:
 
 ![image](images/lab-3/lab-3-3.png)
+
+## Lab 4: [DOM XSS in `innerHTML` sink using source `location.search`](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-innerhtml-sink)
+
+> This lab contains a DOM-based cross-site scripting vulnerability in the search blog functionality. It uses an innerHTML assignment, which changes the HTML contents of a div element, using data from location.search.
+>
+> To solve this lab, perform a cross-site scripting attack that calls the alert function.
+
+Truy cập vào bài lab, chúng ta thấy một trang web như sau:
+
+![image](images/lab-4/lab-4.png)
+
+Thử tìm kiếm `abc` rồi Inspect, chúng ta sẽ biết giá trị đó đang được đưa vào thẻ `<span>`:
+
+![image](images/lab-4/lab-4-1.png)
+
+Nếu để ý source code, chúng ta sẽ thấy có đoạn JavaScript được sử dụng để lấy chuỗi tìm kiếm từ tham số `search` và gán nó cho thuộc tính `innerHTML`:
+
+![image](images/lab-4/lab-4-2.png)
+
+Bởi vì sink `innerHTML` không cho phép thực thi JavaScript ở thẻ `<script>` hay event `onload` của thẻ `<svg>` nên chúng ta cần sử dụng một payload khác.
+
+Chúng ta sẽ dùng payload `<img src=1 onerror=alert()>`:
+
+![image](images/lab-4/lab-4-3.png)
+
+Thực hiện XSS thành công và chúng ta đã giải được bài lab:
+
+![image](images/lab-4/lab-4-4.png)
