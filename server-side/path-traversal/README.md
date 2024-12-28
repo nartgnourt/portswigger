@@ -45,3 +45,21 @@ Truy cập bài lab, chúng ta thấy ứng dụng tải ảnh thông qua URL `/
 Bởi vì ứng dụng không loại bỏ triệt để `../` nên chúng ta sẽ truyền payload `....//....//....//etc/passwd` vào tham số `filename` để đọc thành công file `/etc/passwd`:
 
 ![image](images/lab-3/lab-3-1.png)
+
+## Lab 4: [File path traversal, traversal sequences stripped with superfluous URL-decode](https://portswigger.net/web-security/file-path-traversal/lab-superfluous-url-decode)
+
+> This lab contains a path traversal vulnerability in the display of product images.
+>
+> The application blocks input containing path traversal sequences. It then performs a URL-decode of the input before using it.
+>
+> To solve the lab, retrieve the contents of the `/etc/passwd` file.
+
+Bắt đầu thử thách, chúng ta vẫn thấy ứng dụng tải ảnh thông qua URL `/image` với tham số `filename`:
+
+![image](images/lab-4/lab-4.png)
+
+Theo như mô tả, ứng dụng đã chặn `../` và decode URL dữ liệu đầu vào của chúng ta trước khi sử dụng. Do đó, chúng ta có thể thực hiện double URL encoding ký tự `/` thành `%252f` để bypass.
+
+Chúng ta sẽ đổi giá trị của tham số `filename` thành payload `..%252f..%252f..%252fetc/passwd` để thành công đọc được file `/etc/passwd`:
+
+![image](images/lab-4/lab-4-1.png)
