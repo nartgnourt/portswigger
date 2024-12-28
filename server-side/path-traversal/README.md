@@ -63,3 +63,19 @@ Theo như mô tả, ứng dụng đã chặn `../` và decode URL dữ liệu đ
 Chúng ta sẽ đổi giá trị của tham số `filename` thành payload `..%252f..%252f..%252fetc/passwd` để thành công đọc được file `/etc/passwd`:
 
 ![image](images/lab-4/lab-4-1.png)
+
+## Lab 5: [File path traversal, validation of start of path](https://portswigger.net/web-security/file-path-traversal/lab-validate-start-of-path)
+
+> This lab contains a path traversal vulnerability in the display of product images.
+>
+> The application transmits the full file path via a request parameter, and validates that the supplied path starts with the expected folder.
+>
+> To solve the lab, retrieve the contents of the `/etc/passwd` file.
+
+Truy cập vào bài lab, chúng ta tiếp tục thấy ứng dụng tải ảnh thông qua URL `/image` với tham số `filename`:
+
+![image](images/lab-5/lab-5.png)
+
+Lần này ứng dụng yêu cầu tên file ảnh phải bắt đầu với đường dẫn `/var/www/images/` nên chúng ta sẽ đổi giá trị của tham số `filename` thành `/var/www/images/../../../etc/passwd` để đọc được file `/etc/passwd`:
+
+![image](images/lab-5/lab-5-1.png)
