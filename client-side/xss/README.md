@@ -121,3 +121,37 @@ Và chúng ta giải thành công bài lab:
 Khi chúng ta nhấn "Back" sẽ trigger XSS:
 
 ![image](images/lab-5/lab-5-4.png)
+
+## Lab 6: [DOM XSS in jQuery selector sink using a hashchange event](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-selector-hash-change-event)
+
+> This lab contains a DOM-based cross-site scripting vulnerability on the home page. It uses jQuery's `$()` selector function to auto-scroll to a given post, whose title is passed via the `location.hash` property.
+>
+> To solve the lab, deliver an exploit to the victim that calls the `print()` function in their browser.
+
+Giao diện của trang web khi chúng ta truy cập vào bài lab như sau:
+
+![image](images/lab-6/lab-6.png)
+
+Đoạn code JQuery bên dưới sẽ thực hiện việc tự động cuộn trang đến bài viết có tiêu đề chứa fragment - phần sau dấu `#` trong URL.
+
+![image](images/lab-6/lab-6-1.png)
+
+Một điểm cần chú ý là selector `$()` trong JQuery sẽ tạo ra phần tử HTML nếu nó không tồn tại.
+
+![image](images/lab-6/lab-6-2.png)
+
+Do bài lab yêu cầu phải thực thi hàm `print()` nên thử thêm payload dưới vào sau URL, chúng ta sẽ thấy trigger XSS thành công.
+
+```text
+/#<img src=1 onerror=print()>
+```
+
+![image](images/lab-6/lab-6-3.png)
+
+Vậy chúng ta sẽ vào exploit server của bài lab và triển khai payload khai thác bên dưới. Bởi vì victim không thực hiện bất kỳ hành động nào nên chúng ta sẽ tận dụng event `onload` ở thẻ `<iframe>` để trigger được event `onhashchange`. Từ đó, thực hiện XSS thành công ở trình duyệt của victim.
+
+```html
+<iframe src='https://0ade009f042a8b1080fa852e00d30036.web-security-academy.net/#' onload="this.src+='<img src=1 onerror=print()>'">
+```
+
+![image](images/lab-6/lab-6-4.png)
