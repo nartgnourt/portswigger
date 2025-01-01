@@ -155,3 +155,30 @@ Vậy chúng ta sẽ vào exploit server của bài lab và triển khai payload
 ```
 
 ![image](images/lab-6/lab-6-4.png)
+
+## Lab 7: [Reflected XSS into attribute with angle brackets HTML-encoded](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-attribute-angle-brackets-html-encoded)
+
+> This lab contains a reflected cross-site scripting vulnerability in the search blog functionality where angle brackets are HTML-encoded. To solve this lab, perform a cross-site scripting attack that injects an attribute and calls the `alert` function.
+>
+> **Hint** \
+> Just because you're able to trigger the `alert()` yourself doesn't mean that this will work on the victim. You may need to try injecting your proof-of-concept payload with a variety of different attributes before you find one that successfully executes in the victim's browser.
+
+Bắt đầu bài lab, chúng ta sẽ thấy một giao diện trang web như sau:
+
+![image](images/lab-7/lab-7.png)
+
+Theo như mô tả, trang web dính lỗ hổng XSS tại chức năng tìm kiếm blog. Chúng ta thử tìm kiếm chuỗi bất kỳ như `abc`:
+
+![image](images/lab-7/lab-7-1.png)
+
+Khi xem HTML source code, chúng ta sẽ thấy chuỗi vừa nhập đang được truyền tới attribute `value`:
+
+![image](images/lab-7/lab-7-2.png)
+
+Vậy chúng ta cần thoát khỏi cặp dấu `"` và thêm một attribute mới để trigger hàm `alert()`. Chúng ta có thể dùng payload bên dưới để giải thành công bài lab.
+
+```html
+" onmouseover="alert()
+```
+
+![image](images/lab-7/lab-7-3.png)
