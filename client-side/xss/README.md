@@ -182,3 +182,33 @@ Vậy chúng ta cần thoát khỏi cặp dấu `"` và thêm một attribute m�
 ```
 
 ![image](images/lab-7/lab-7-3.png)
+
+## Lab 8: [Stored XSS into anchor href attribute with double quotes HTML-encoded](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-href-attribute-double-quotes-html-encoded)
+
+> This lab contains a stored cross-site scripting vulnerability in the comment functionality. To solve this lab, submit a comment that calls the `alert` function when the comment author name is clicked.
+
+Bắt đầu bài lab, chúng ta thấy trang web sau:
+
+![image](images/lab-8/lab-8.png)
+
+Theo như mô tả, chúng ta cần phải khai thác XSS tại chức năng comment để có thể gọi được hàm `alert()` khi nhấn vào tên người comment.
+
+Chúng ta sẽ vào một bài viết bất kỳ và thử viết một comment như sau:
+
+![image](images/lab-8/lab-8-1.png)
+
+Để ý trong HTML source code, chúng ta thấy URL mà chúng ta nhập vào đang được truyền tới attribute `href`:
+
+![image](images/lab-8/lab-8-2.png)
+
+Chúng ta biết rằng việc sử dụng `javascript:` trong attribute `href` cho phép thực thi mã JavaScript khi nhấn vào link. Do đó, chúng ta sẽ nhập payload `javascript:alert()` vào trường "Website":
+
+![image](images/lab-8/lab-8-3.png)
+
+Nhấn "Post Comment" và chúng ta giải thành công bài lab:
+
+![image](images/lab-8/lab-8-4.png)
+
+Quay trở lại, chúng ta có thể thử nhấn vào tên "xss" để trigger hàm `alert()`:
+
+![image](images/lab-8/lab-8-5.png)
