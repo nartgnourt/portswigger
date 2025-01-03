@@ -212,3 +212,23 @@ Nhấn "Post Comment" và chúng ta giải thành công bài lab:
 Quay trở lại, chúng ta có thể thử nhấn vào tên "xss" để trigger hàm `alert()`:
 
 ![image](images/lab-8/lab-8-5.png)
+
+## Lab 9: [Reflected XSS into a JavaScript string with angle brackets HTML encoded](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-angle-brackets-html-encoded)
+
+> This lab contains a reflected cross-site scripting vulnerability in the search query tracking functionality where angle brackets are encoded. The reflection occurs inside a JavaScript string. To solve this lab, perform a cross-site scripting attack that breaks out of the JavaScript string and calls the `alert` function.
+
+Bên dưới là giao diện của trang web.
+
+![image](images/lab-9/lab-9.png)
+
+Khi thử tìm kiếm `abc`, chúng ta sẽ thấy chuỗi đang được lấy từ tham số `search` và truyền vào biến `searchTerms`:
+
+![image](images/lab-9/lab-9-1.png)
+
+Vậy chúng ta có thể sử dụng payload `';alert()-'` để thoát khỏi cặp dấu `'` và thực thi hàm `alert()`:
+
+![image](images/lab-9/lab-9-2.png)
+
+Và chúng ta sẽ giải được bài lab:
+
+![image](images/lab-9/lab-9-3.png)
